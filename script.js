@@ -7,7 +7,6 @@
 // Configuration
 const RAW_API_URL = typeof CONFIG !== 'undefined' ? CONFIG.RAW_API_URL : 'https://muse.abhiyank.in/api/music/search?query=';
 const CORS_PROXY = typeof CONFIG !== 'undefined' ? CONFIG.CORS_PROXY : 'https://api.codetabs.com/v1/proxy?quest=';
-const API_URL = `${CORS_PROXY}${encodeURIComponent(RAW_API_URL)}`;
 
 // State
 let state = {
@@ -309,7 +308,10 @@ function handleSearch(e) {
 async function fetchMusic(query) {
     if (els.searchLoader) els.searchLoader.style.display = 'block';
     try {
-        const res = await fetch(`${API_URL}${encodeURIComponent(query)}`);
+        // Build the full API URL first, then encode it for the CORS proxy
+        const fullURL = `${RAW_API_URL}${encodeURIComponent(query)}`;
+        const proxyURL = `${CORS_PROXY}${encodeURIComponent(fullURL)}`;
+        const res = await fetch(proxyURL);
         if (!res.ok) throw new Error('fetch failed');
         const data = await res.json();
         renderUI(data);
