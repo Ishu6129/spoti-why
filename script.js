@@ -169,6 +169,12 @@ function init() {
     if (els.volumeFill) els.volumeFill.style.width = `${state.volume * 100}%`;
 
     party.init();
+    
+    // Initialize Media Session for background playback
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+    }
+
     setupEventListeners();
     setupKeyboardControls();
     setupMobileControls();
@@ -193,6 +199,18 @@ function setupEventListeners() {
 
     if (els.audioPlayer) els.audioPlayer.addEventListener('timeupdate', updateProgress);
     if (els.audioPlayer) els.audioPlayer.addEventListener('ended', handleTrackEnd);
+    if (els.audioPlayer) {
+        els.audioPlayer.addEventListener('play', () => {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+            }
+        });
+        els.audioPlayer.addEventListener('pause', () => {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+            }
+        });
+    }
 
     const shuffleBtn = document.getElementById('shuffle-btn');
     if (shuffleBtn) shuffleBtn.addEventListener('click', toggleShuffle);
@@ -399,6 +417,27 @@ function playSong(song, index) {
         item.classList.toggle('active-song', i === index);
     });
 
+    // Update Media Session for lock screen & background playback
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: decodeHTMLEntities(song.name),
+            artist: decodeHTMLEntities(song.artist),
+            artwork: [
+                { src: img || DEFAULT_IMG, sizes: '96x96', type: 'image/jpeg' },
+                { src: img || DEFAULT_IMG, sizes: '128x128', type: 'image/jpeg' },
+                { src: img || DEFAULT_IMG, sizes: '192x192', type: 'image/jpeg' },
+                { src: img || DEFAULT_IMG, sizes: '256x256', type: 'image/jpeg' },
+                { src: img || DEFAULT_IMG, sizes: '384x384', type: 'image/jpeg' }
+            ]
+        });
+
+        // Setup media session action handlers
+        navigator.mediaSession.setActionHandler('play', togglePlay);
+        navigator.mediaSession.setActionHandler('pause', togglePlay);
+        navigator.mediaSession.setActionHandler('previoustrack', playPrev);
+        navigator.mediaSession.setActionHandler('nexttrack', playNext);
+    }
+
     els.audioPlayer.src = song.url;
     els.audioPlayer.play().catch(() => showToast('Playback blocked. Tap play.', 'alert-circle'));
     state.isPlaying = true;
@@ -422,9 +461,15 @@ function togglePlay() {
     if (state.isPlaying) {
         els.audioPlayer.pause();
         syncPlayState(false);
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'paused';
+        }
     } else {
         els.audioPlayer.play();
         syncPlayState(true);
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = 'playing';
+        }
     }
     state.isPlaying = !state.isPlaying;
 }
