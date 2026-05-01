@@ -166,7 +166,7 @@ const party = {
 // ===== INIT =====
 function init() {
     lucide.createIcons();
-    els.audioPlayer.volume = state.volume;
+    if (els.audioPlayer) els.audioPlayer.volume = state.volume;
     if (els.volumeFill) els.volumeFill.style.width = `${state.volume * 100}%`;
 
     party.init();
@@ -181,17 +181,19 @@ function init() {
 }
 
 function setupEventListeners() {
-    els.searchInput.addEventListener('keydown', handleSearch);
-    els.playPauseBtn.addEventListener('click', togglePlay);
-    els.progressBar.addEventListener('click', seek);
+    if (els.searchInput) els.searchInput.addEventListener('keydown', handleSearch);
+    if (els.playPauseBtn) els.playPauseBtn.addEventListener('click', togglePlay);
+    if (els.progressBar) els.progressBar.addEventListener('click', seek);
     if (els.volumeBar) els.volumeBar.addEventListener('click', setVolume);
 
-    document.getElementById('next-btn').addEventListener('click', playNext);
-    document.getElementById('prev-btn').addEventListener('click', playPrev);
-    els.viewAllBtn.addEventListener('click', toggleViewAll);
+    const nextBtn = document.getElementById('next-btn');
+    if (nextBtn) nextBtn.addEventListener('click', playNext);
+    const prevBtn = document.getElementById('prev-btn');
+    if (prevBtn) prevBtn.addEventListener('click', playPrev);
+    if (els.viewAllBtn) els.viewAllBtn.addEventListener('click', toggleViewAll);
 
-    els.audioPlayer.addEventListener('timeupdate', updateProgress);
-    els.audioPlayer.addEventListener('ended', handleTrackEnd);
+    if (els.audioPlayer) els.audioPlayer.addEventListener('timeupdate', updateProgress);
+    if (els.audioPlayer) els.audioPlayer.addEventListener('ended', handleTrackEnd);
 
     const shuffleBtn = document.getElementById('shuffle-btn');
     if (shuffleBtn) shuffleBtn.addEventListener('click', toggleShuffle);
@@ -202,9 +204,12 @@ function setupEventListeners() {
     const partyBtn = document.getElementById('party-btn');
     if (partyBtn) partyBtn.addEventListener('click', togglePartyMode);
 
-    document.getElementById('download-btn').addEventListener('click', () => {
-        if (state.currentTrack) downloadTrack(state.currentTrack);
-    });
+    const downloadBtn = document.getElementById('download-btn');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => {
+            if (state.currentTrack) downloadTrack(state.currentTrack);
+        });
+    }
 }
 
 function setupMobileControls() {
@@ -214,8 +219,10 @@ function setupMobileControls() {
         playerBar.addEventListener('click', (e) => {
             // Only on mobile, and not if clicking a button inside
             if (window.innerWidth <= 768 && !e.target.closest('button')) {
-                els.mobileDrawer.classList.add('open');
-                document.body.style.overflow = 'hidden';
+                if (els.mobileDrawer) {
+                    els.mobileDrawer.classList.add('open');
+                    document.body.style.overflow = 'hidden';
+                }
             }
         });
     }
@@ -223,15 +230,21 @@ function setupMobileControls() {
     const closeBtn = document.getElementById('close-drawer');
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            els.mobileDrawer.classList.remove('open');
-            document.body.style.overflow = '';
+            if (els.mobileDrawer) {
+                els.mobileDrawer.classList.remove('open');
+                document.body.style.overflow = '';
+            }
         });
     }
 
-    document.getElementById('drawer-play-pause').addEventListener('click', togglePlay);
-    document.getElementById('drawer-next').addEventListener('click', playNext);
-    document.getElementById('drawer-prev').addEventListener('click', playPrev);
-    document.getElementById('drawer-progress-bar').addEventListener('click', seek);
+    const drawerPlayPause = document.getElementById('drawer-play-pause');
+    if (drawerPlayPause) drawerPlayPause.addEventListener('click', togglePlay);
+    const drawerNext = document.getElementById('drawer-next');
+    if (drawerNext) drawerNext.addEventListener('click', playNext);
+    const drawerPrev = document.getElementById('drawer-prev');
+    if (drawerPrev) drawerPrev.addEventListener('click', playPrev);
+    const drawerProgressBar = document.getElementById('drawer-progress-bar');
+    if (drawerProgressBar) drawerProgressBar.addEventListener('click', seek);
 
     const drawerShuffle = document.getElementById('drawer-shuffle-btn');
     if (drawerShuffle) drawerShuffle.addEventListener('click', toggleShuffle);
@@ -241,16 +254,18 @@ function setupMobileControls() {
 
     // Swipe down to close drawer
     let touchStartY = 0;
-    els.mobileDrawer.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-    els.mobileDrawer.addEventListener('touchend', (e) => {
-        const dy = e.changedTouches[0].clientY - touchStartY;
-        if (dy > 100) {
-            els.mobileDrawer.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    }, { passive: true });
+    if (els.mobileDrawer) {
+        els.mobileDrawer.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+            els.mobileDrawer.addEventListener('touchend', (e) => {
+            const dy = e.changedTouches[0].clientY - touchStartY;
+            if (dy > 100) {
+                els.mobileDrawer.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }, { passive: true });
+    }
 
     // Nav items
     const showTab = (tabId) => {
@@ -267,13 +282,16 @@ function setupMobileControls() {
         } else {
             if (songsSec) songsSec.classList.remove('mobile-hidden');
             if (playPan) playPan.classList.remove('mobile-active');
-            if (tabId === 'nav-search') els.searchInput.focus();
+            if (tabId === 'nav-search' && els.searchInput) els.searchInput.focus();
         }
     };
 
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => showTab(item.id));
-    });
+    const navItems = document.querySelectorAll('.nav-item');
+    if (navItems) {
+        navItems.forEach(item => {
+            item.addEventListener('click', () => showTab(item.id));
+        });
+    }
 }
 
 // ===== SEARCH & FETCH =====
@@ -713,5 +731,18 @@ async function downloadTrack(song) {
     }
 }
 
-// Boot
-init();
+// Ensure config is available as fallback
+if (typeof CONFIG === 'undefined') {
+    window.CONFIG = {
+        RAW_API_URL: 'https://muse.abhiyank.in/api/music/search?query=',
+        CORS_PROXY: 'https://api.codetabs.com/v1/proxy?quest='
+    };
+}
+
+// Boot with error handling
+try {
+    init();
+} catch (err) {
+    console.error('Failed to initialize app:', err);
+    console.log('Some features may not be available.');
+}
