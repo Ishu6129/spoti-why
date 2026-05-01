@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peace beats - Pure Sound Experience</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-wrapper">
+        <div class="app-container">
+            <div class="bg-glow" id="bg-glow"></div>
+            <!-- Header -->
+            <header class="app-header">
+                <div class="logo">
+                    <div class="logo-icon"><i data-lucide="zap"></i></div>
+                    <span>Peace beats</span>
+                </div>
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="search-input" placeholder="Search artists, songs...">
+                </div>
+                <div class="user-action">
+                    <button class="icon-btn"><i data-lucide="bell"></i></button>
+                    <div class="user-avatar"></div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="main-layout">
+                <!-- Carousel Section -->
+                <section class="carousel-section" id="carousel-container">
+                    <div class="section-header">
+                        <h2>Featured Albums</h2>
+                        <div class="carousel-nav">
+                            <button id="prev-album"><i data-lucide="chevron-left"></i></button>
+                            <button id="next-album"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="carousel-3d" id="album-carousel">
+                        <!-- Album cards will be injected here -->
+                        <div class="placeholder-text">Search for music to see featured albums</div>
+                    </div>
+                </section>
+
+                <div class="content-split">
+                    <!-- Songs List -->
+                    <section class="songs-section">
+                        <div class="section-header">
+                            <h2>Trending Songs</h2>
+                            <button class="view-all" id="view-all-songs">View All</button>
+                        </div>
+                        <div class="songs-list" id="songs-list">
+                            <!-- Song items will be injected here -->
+                            <div class="loading-placeholder">Search "malal" to get started...</div>
+                        </div>
+                    </section>
+
+                    <!-- Playlist Panel -->
+                    <aside class="playlist-panel">
+                        <div class="section-header">
+                            <h2>Your Playlist</h2>
+                        </div>
+                        <div class="playlist-items" id="playlist-items">
+                            <div class="empty-playlist">
+                                <i data-lucide="list-music"></i>
+                                <p>Queue is empty</p>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </main>
+
+            <!-- Player Bar -->
+            <footer class="player-bar">
+                <div class="track-details">
+                    <div class="mini-album-art">
+                        <img id="player-img" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150&q=80" alt="Album Art">
+                    </div>
+                    <div class="track-meta">
+                        <h4 id="player-title">No Track</h4>
+                        <p id="player-artist">Select a song</p>
+                    </div>
+                    <div class="visualizer" id="visualizer">
+                        <div class="vis-bar"></div>
+                        <div class="vis-bar"></div>
+                        <div class="vis-bar"></div>
+                        <div class="vis-bar"></div>
+                        <div class="vis-bar"></div>
+                    </div>
+                </div>
+
+                <div class="player-core">
+                    <div class="main-controls">
+                        <button class="control-btn"><i data-lucide="shuffle"></i></button>
+                        <button class="control-btn" id="prev-btn"><i data-lucide="skip-back"></i></button>
+                        <button class="play-pause-btn" id="play-pause-btn">
+                            <i data-lucide="play" id="play-icon"></i>
+                        </button>
+                        <button class="control-btn" id="next-btn"><i data-lucide="skip-forward"></i></button>
+                        <button class="control-btn"><i data-lucide="repeat"></i></button>
+                    </div>
+                    <div class="progress-area">
+                        <span class="time" id="current-time">0:00</span>
+                        <div class="progress-bar-wrapper" id="progress-bar">
+                            <div class="progress-bar-fill" id="progress-fill"></div>
+                            <div class="waveform-overlay"></div>
+                        </div>
+                        <span class="time" id="total-time">0:00</span>
+                    </div>
+                </div>
+
+                <div class="extra-controls">
+                    <button class="control-btn" id="download-btn" title="Download"><i data-lucide="download"></i></button>
+                    <button class="control-btn"><i data-lucide="mic-2"></i></button>
+                    <button class="control-btn"><i data-lucide="volume-2"></i></button>
+                    <div class="volume-bar-wrapper" id="volume-bar">
+                        <div class="volume-bar-fill" id="volume-fill" style="width: 70%"></div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <nav class="mobile-nav">
+            <div class="nav-item active"><i data-lucide="home"></i><span>Home</span></div>
+            <div class="nav-item"><i data-lucide="search"></i><span>Search</span></div>
+            <div class="nav-item"><i data-lucide="library"></i><span>Library</span></div>
+            <div class="nav-item"><i data-lucide="user"></i><span>Profile</span></div>
+        </nav>
+
+        <!-- Mobile Player Drawer -->
+        <div class="mobile-player-drawer" id="mobile-player-drawer">
+            <div class="drawer-header">
+                <button class="drawer-close" id="close-drawer"><i data-lucide="chevron-down"></i></button>
+                <span>Now Playing</span>
+                <button class="icon-btn"><i data-lucide="more-vertical"></i></button>
+            </div>
+            <div class="drawer-content">
+                <div class="drawer-album-art">
+                    <img id="drawer-img" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&q=80" alt="Album Art">
+                </div>
+                <div class="drawer-info">
+                    <h2 id="drawer-title">No Track</h2>
+                    <p id="drawer-artist">Select a song</p>
+                </div>
+                <div class="drawer-controls">
+                    <div class="drawer-progress">
+                        <div class="progress-bar-wrapper" id="drawer-progress-bar">
+                            <div class="progress-bar-fill" id="drawer-progress-fill"></div>
+                        </div>
+                        <div class="time-info">
+                            <span id="drawer-current">0:00</span>
+                            <span id="drawer-total">0:00</span>
+                        </div>
+                    </div>
+                    <div class="drawer-main-btns">
+                        <button class="control-btn"><i data-lucide="shuffle"></i></button>
+                        <button class="control-btn" id="drawer-prev"><i data-lucide="skip-back"></i></button>
+                        <button class="play-pause-btn main" id="drawer-play-pause">
+                            <i data-lucide="play" id="drawer-play-icon"></i>
+                        </button>
+                        <button class="control-btn" id="drawer-next"><i data-lucide="skip-forward"></i></button>
+                        <button class="control-btn"><i data-lucide="repeat"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Audio Element -->
+    <audio id="audio-player"></audio>
+
+    <script src="config.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
